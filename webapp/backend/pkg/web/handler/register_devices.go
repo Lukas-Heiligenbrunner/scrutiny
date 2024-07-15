@@ -27,6 +27,7 @@ func RegisterDevices(c *gin.Context) {
 	detectedStorageDevices := lo.Filter[models.Device](collectorDeviceWrapper.Data, func(dev models.Device, _ int) bool {
 		return len(dev.WWN) > 0
 	})
+	// todo extract also md devices
 
 	errs := []error{}
 	for _, dev := range detectedStorageDevices {

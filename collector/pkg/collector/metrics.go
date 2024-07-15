@@ -67,11 +67,21 @@ func (mc *MetricsCollector) Run() error {
 		return len(dev.WWN) > 0
 	})
 
-	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
+	detectedMdDevices, err := deviceDetector.MdadmScan()
+	if err != nil {
+		return err
+	}
+
 	jsonObj, _ := json.Marshal(detectedStorageDevices)
 	mc.logger.Debugf("Detected devices: %v", string(jsonObj))
+
+	jsonMdObj, _ := json.Marshal(detectedMdDevices)
+	mc.logger.Debugf("Detected Mdadm devices: %v", string(jsonMdObj))
+
+	mc.logger.Infoln("Sending detected devices to API, for filtering & validation")
 	err = mc.postJson(apiEndpoint.String(), models.DeviceWrapper{
-		Data: detectedStorageDevices,
+		Devices: detectedStorageDevices,
+		MdRaids: detectedMdDevices,
 	}, &deviceRespWrapper)
 	if err != nil {
 		return err
@@ -84,7 +94,7 @@ func (mc *MetricsCollector) Run() error {
 	} else {
 		mc.logger.Debugln(deviceRespWrapper)
 		//var wg sync.WaitGroup
-		for _, device := range deviceRespWrapper.Data {
+		for _, device := range deviceRespWrapper.Devices {
 			// execute collection in parallel go-routines
 			//wg.Add(1)
 			//go mc.Collect(&wg, device.WWN, device.DeviceName, device.DeviceType)
@@ -113,7 +123,7 @@ func (mc *MetricsCollector) Validate() error {
 	return nil
 }
 
-//func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
+// func (mc *MetricsCollector) Collect(wg *sync.WaitGroup, deviceWWN string, deviceName string, deviceType string) {
 func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceType string) {
 	//defer wg.Done()
 	if len(deviceWWN) == 0 {
@@ -146,7 +156,7 @@ func (mc *MetricsCollector) Collect(deviceWWN string, deviceName string, deviceT
 		return
 	} else {
 		//successful run, pass the results directly to webapp backend for parsing and processing.
-		mc.Publish(deviceWWN, resultBytes)
+		_ = mc.Publish(deviceWWN, resultBytes)
 	}
 }
 

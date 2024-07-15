@@ -4,9 +4,9 @@ type Device struct {
 	WWN string `json:"wwn"`
 
 	DeviceName     string `json:"device_name"`
-	DeviceUUID	   string `json:"device_uuid"`
-	DeviceSerialID	   string `json:"device_serial_id"`
-	DeviceLabel	   string `json:"device_label"`
+	DeviceUUID     string `json:"device_uuid"`
+	DeviceSerialID string `json:"device_serial_id"`
+	DeviceLabel    string `json:"device_label"`
 
 	Manufacturer   string `json:"manufacturer"`
 	ModelName      string `json:"model_name"`
@@ -26,8 +26,24 @@ type Device struct {
 	HostId string `json:"host_id"`
 }
 
+type MdRaid struct {
+	WWN string `json:"wwn"`
+
+	DeviceName   string `json:"device_name"`
+	RaidLevel    string `json:"raid_level"`
+	RaidDeviceNr uint8  `json:"raid_device_nr"`
+	State        string `json:"state"`
+	Size         uint64 `json:"size"`
+	UsedDevSize  uint64 `json:"used_dev_size"`
+
+	Name    string   `json:"name"`
+	UUID    string   `json:"uuid"`
+	Members []string `json:"members"`
+}
+
 type DeviceWrapper struct {
 	Success bool     `json:"success,omitempty"`
 	Errors  []error  `json:"errors,omitempty"`
-	Data    []Device `json:"data"`
+	Devices []Device `json:"devices"`
+	MdRaids []MdRaid `json:"mdraids"`
 }

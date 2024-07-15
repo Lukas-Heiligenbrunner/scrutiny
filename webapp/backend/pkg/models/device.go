@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// todo modify wrapper as from collector
 type DeviceWrapper struct {
 	Success bool     `json:"success"`
 	Errors  []error  `json:"errors"`
